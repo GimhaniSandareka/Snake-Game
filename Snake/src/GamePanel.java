@@ -27,6 +27,7 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     Random random;
     boolean gameOver = false;
+    boolean paused = false;
 
     GamePanel(){
         random = new Random();
@@ -89,8 +90,18 @@ public class GamePanel extends JPanel implements ActionListener {
             FontMetrics metrics = getFontMetrics(g.getFont());
             g.drawString("Score: " +  applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " +  applesEaten))/2, g.getFont().getSize());
 
+
+
         } else {
             gameOver(g);
+        }
+
+        // Show "Game Paused" message when the game is paused
+        if (paused) {
+            g.setColor(Color.yellow);
+            g.setFont(new Font("Times New Roman", Font.BOLD, 40));
+            FontMetrics metrics = getFontMetrics(g.getFont());
+            g.drawString("Game Paused", (SCREEN_WIDTH - metrics.stringWidth("Game Paused")) / 2, SCREEN_HEIGHT / 2);
         }
     }
 
@@ -209,6 +220,17 @@ public class GamePanel extends JPanel implements ActionListener {
                             direction = 'D';
                         }
                         break;
+                    case KeyEvent.VK_SPACE: // Pause and Resume
+                        if (running) {
+                            paused = !paused;  // Toggle pause state
+                            if (paused) {
+                                timer.stop();  // Stop the game timer
+                            } else {
+                                timer.start();  // Resume the game timer
+                            }
+                            repaint();  // Ensure the screen is redrawn immediately after toggling pause
+                        }
+                        break;
                 }
             }
         }
@@ -219,6 +241,7 @@ public class GamePanel extends JPanel implements ActionListener {
         applesEaten = 0;
         direction = 'R';
         gameOver = false;
+        paused = false;
         running = true;
         startGame();
         repaint();
