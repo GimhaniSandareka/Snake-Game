@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.Random;
 import java.util.Scanner;
+import javax.sound.sampled.*;
 
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -161,6 +162,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void checkApple(){
         if ((x[0] == appleX) && (y[0] == appleY)){
+            playSound("/resources/eat.wav");
             bodyParts++;
             applesEaten++;
             newApple();
@@ -179,6 +181,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
         if (!running) {
+            playSound("/resources/gameover.wav");
             timer.stop();
             gameOver = true;
         }
@@ -296,6 +299,18 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
     }
+
+    public void playSound(String soundFileName) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource(soundFileName));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception ex) {
+            System.out.println("Error playing sound: " + ex.getMessage());
+        }
+    }
+
 
 }
 
