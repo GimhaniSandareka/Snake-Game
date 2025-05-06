@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.Random;
+import java.util.Scanner;
+
 
 public class GamePanel extends JPanel implements ActionListener {
 
@@ -28,6 +31,9 @@ public class GamePanel extends JPanel implements ActionListener {
     Random random;
     boolean gameOver = false;
     boolean paused = false;
+    int highScore = 0;
+    File highScoreFile = new File("highscore.txt");
+
 
     GamePanel(){
         random = new Random();
@@ -36,6 +42,7 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
 
+        loadHighScore();
         startGame();
     }
 
@@ -184,6 +191,12 @@ public class GamePanel extends JPanel implements ActionListener {
         FontMetrics metrics1 = getFontMetrics(g.getFont());
         g.drawString("Score: " +  applesEaten, (SCREEN_WIDTH - metrics1.stringWidth("Score: " +  applesEaten))/2, g.getFont().getSize());
 
+        saveHighScore();
+        g.setColor(Color.cyan);
+        g.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+        FontMetrics metrics4 = getFontMetrics(g.getFont());
+        g.drawString("High Score: " + highScore, (SCREEN_WIDTH - metrics4.stringWidth("High Score: " + highScore)) / 2, SCREEN_HEIGHT / 2 + 140);
+
         // Game Over Text
         g.setColor(Color.red);
         g.setFont(new Font("Times New Roman", Font.BOLD, 75));
@@ -262,4 +275,27 @@ public class GamePanel extends JPanel implements ActionListener {
         startGame();
         repaint();
     }
+
+    public void loadHighScore() {
+        try (Scanner scanner = new Scanner(highScoreFile)) {
+            if (scanner.hasNextInt()) {
+                highScore = scanner.nextInt();
+            }
+        } catch (Exception e) {
+            highScore = 0;
+        }
+    }
+
+    public void saveHighScore() {
+        if (applesEaten > highScore) {
+            highScore = applesEaten;
+            try (PrintWriter writer = new PrintWriter(highScoreFile)) {
+                writer.println(highScore);
+            } catch (Exception e) {
+                System.out.println("Error saving high score: " + e.getMessage());
+            }
+        }
+    }
+
 }
+
