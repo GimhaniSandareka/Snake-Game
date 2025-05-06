@@ -26,6 +26,7 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    boolean gameOver = false;
 
     GamePanel(){
         random = new Random();
@@ -38,10 +39,19 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void startGame(){
+
+        // Reset snake position
+        for (int i = 0; i < bodyParts; i++) {
+            x[i] = 100 - i * UNIT_SIZE;
+            y[i] = 100;
+        }
         newApple();
         running = true;
+        direction = 'R';
         timer = new Timer(DELAY, this);
         timer.start();
+
+
     }
 
     public void paintComponent(Graphics g){
@@ -130,31 +140,19 @@ public class GamePanel extends JPanel implements ActionListener {
                 running = false;
             }
         }
-        // Check if head touches left border
-        if (x[0] < 0){
-            running = false;
-        }
-        // Check if head touches right border
-        if (x[0] > SCREEN_WIDTH){
-            running = false;
-        }
-        // Check if head touches top border
-        if (y[0] < 0){
-            running = false;
-        }
-        // Check if head touches bottom border
-        if (y[0] > SCREEN_HEIGHT){
+        if (x[0] < 0 || x[0] >= SCREEN_WIDTH || y[0] < 0 || y[0] >= SCREEN_HEIGHT) {
             running = false;
         }
 
-        if(!running){
+        if (!running) {
             timer.stop();
+            gameOver = true;
         }
     }
 
     public void gameOver(Graphics g){
         // Score
-        g.setColor(Color.red);
+        g.setColor(Color.yellow);
         g.setFont(new Font("Times New Roman", Font.BOLD, 40));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
         g.drawString("Score: " +  applesEaten, (SCREEN_WIDTH - metrics1.stringWidth("Score: " +  applesEaten))/2, g.getFont().getSize());
@@ -164,6 +162,11 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Times New Roman", Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over"))/2, SCREEN_HEIGHT/2);
+
+        g.setColor(Color.green);
+        g.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        g.drawString("Press 'R' to Restart", (SCREEN_WIDTH - metrics3.stringWidth("Press 'R' to Restart"))/2, SCREEN_HEIGHT / 2 + 60);
     }
 
     @Override
@@ -180,28 +183,44 @@ public class GamePanel extends JPanel implements ActionListener {
     public class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            switch (e.getKeyCode()){
-                case KeyEvent.VK_LEFT:
-                    if (direction != 'R'){
-                        direction = 'L';
-                    }
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    if (direction != 'L'){
-                        direction = 'R';
-                    }
-                    break;
-                case KeyEvent.VK_UP:
-                    if (direction != 'D'){
-                        direction = 'U';
-                    }
-                    break;
-                case KeyEvent.VK_DOWN:
-                    if (direction != 'U'){
-                        direction = 'D';
-                    }
-                    break;
+            if (gameOver) {
+                if (e.getKeyCode() == KeyEvent.VK_R) {
+                    restartGame();
+                }
+            } else {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                        if (direction != 'R') {
+                            direction = 'L';
+                        }
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        if (direction != 'L') {
+                            direction = 'R';
+                        }
+                        break;
+                    case KeyEvent.VK_UP:
+                        if (direction != 'D') {
+                            direction = 'U';
+                        }
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (direction != 'U') {
+                            direction = 'D';
+                        }
+                        break;
+                }
             }
         }
+    }
+
+    public void restartGame() {
+        bodyParts = 6;
+        applesEaten = 0;
+        direction = 'R';
+        gameOver = false;
+        running = true;
+        startGame();
+        repaint();
     }
 }
