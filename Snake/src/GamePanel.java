@@ -49,7 +49,23 @@ public class GamePanel extends JPanel implements ActionListener {
         newApple();
         running = true;
         direction = 'R';
-        timer = new Timer(DELAY, this);
+//        timer = new Timer(DELAY, this);
+
+        String[] options = {"Easy", "Medium", "Hard"};
+        int choice = JOptionPane.showOptionDialog(null, "Select Difficulty Level", "Snake Game",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        int delay;
+        switch (choice) {
+            case 0: delay = 150; break;
+            case 1: delay = 100; break;
+            case 2: delay = 50; break;
+            default: delay = 100;
+        }
+
+        timer = new Timer(delay, this);
+
+
         timer.start();
 
 
